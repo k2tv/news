@@ -6,7 +6,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'mysql://name:password@host:port/database'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     # redis配置
-    REDIS_HOST = "192.168.169.119"
+    REDIS_HOST = "192.168.169.142"
     REDIS_PORT = 6379
     REDIS_DB = 8
     # session
@@ -24,7 +24,7 @@ class Config(object):
 
 class DevelopConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@192.168.169.119:3306/flask_news'
+    SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@192.168.169.142:3306/flask_news'
 
 
 class ProductConfig(Config):
