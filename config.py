@@ -20,7 +20,6 @@ class Config(object):
     #__file__====>'config.py'
     #os.path.abspath('')==>文件的绝对路径，如/home/python/Desktop/sy8/sy8_flask/xjzx/config.py
     #os.path.dirname('')==>获取目录名，如/home/python/Desktop/sy8/sy8_flask/xjzx
-
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class DevelopConfig(Config):
