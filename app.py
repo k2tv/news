@@ -5,9 +5,9 @@ from logging.handlers import RotatingFileHandler
 from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 import redis
-from views_news import news_blueprint
-from views_user import user_blueprint
-from views_admin import admin_blueprint
+from view_news import news_blueprint
+from view_user import user_blueprint
+from view_admin import admin_blueprint
 
 
 def create(config):
