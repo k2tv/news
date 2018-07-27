@@ -153,7 +153,7 @@ function generateImageCode() {
     //缓存：当浏览器发现请求地址不变时，会使用之前缓存的数据，而不再重新发请求
     //如果地址相同，但是参数不同时，浏览器不会使用缓存
     //Math.random()==>js中产生随机数
-    $('.get_pic_code').attr('src','/user/image_code?a='+Math.random());
+    $('.get_pic_code').attr('src','/user/get_img_code?a='+Math.random());
 }
 
 // 发送短信验证码
@@ -176,21 +176,26 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
-    $.get('/user/sms_code',{
-        'mobile':mobile,
-        'imagecode':imageCode,
-    },function (data) {
-        if(data.result==1){
-            alert('请填写完整数据');
-        }else if(data.result==2 || data.result==4){
-            alert('图形验证码错误');
-            $(".get_code").attr("onclick", "sendSMSCode();");
+    $.get('/user/get_sms_code',{
+                'mobile':mobile,
+                'imgcode':imageCode},function (data) {
+        var res = data.res;
+        if(res == 1){
+            $("#image-code-err").html("发送成功！");
+        }else if(res == 2){
+            $("#image-code-err").html("验证码错误！");
             generateImageCode();
             $("#imagecode").val('');
-        }else if(data.result==3){
-            alert('请查看手机');
+            $(".get_code").attr("onclick", "sendSMSCode();");
+        }else if(res == 3){
+            $("#image-code-err").html("验证码错误！");
+            generateImageCode();
+            $("#imagecode").val('');
+            $(".get_code").attr("onclick", "sendSMSCode();");
         }
-    });
+        $("#image-code-err").show();
+    })
+
 }
 
 // 调用该函数模拟点击左侧按钮

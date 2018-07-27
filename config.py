@@ -6,11 +6,11 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'mysql://name:password@host:port/database'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     # redis配置
-    REDIS_HOST = "192.168.169.142"
+    REDIS_HOST = "localhost"
     REDIS_PORT = 6379
     REDIS_DB = 8
     # session
-    SECRET_KEY = "itheima"
+    SECRET_KEY = "hellomengf"
     # flask_session的配置信息
     SESSION_TYPE = "redis"  # 指定 session 保存到 redis 中
     SESSION_USE_SIGNER = True  # 让 cookie 中的 session_id 被加密签名处理
@@ -24,7 +24,7 @@ class Config(object):
 
 class DevelopConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@192.168.169.142:3306/flask_news'
+    SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@localhost:3306/flask_news'
 
 
 class ProductConfig(Config):
