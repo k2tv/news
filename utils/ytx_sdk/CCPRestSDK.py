@@ -80,7 +80,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -130,7 +130,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -181,7 +181,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -233,7 +233,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -302,7 +302,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -363,7 +363,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -418,7 +418,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch;
         sig = md5(signature.encode()).hexdigest().upper()
@@ -462,7 +462,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -512,7 +512,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -553,7 +553,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -603,7 +603,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -644,7 +644,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()
@@ -695,7 +695,7 @@ class REST:
 
         self.accAuth()
         nowdate = datetime.datetime.now()
-        self.Batch = nowdate.strftime("%Y%m%d%H%M%S")
+        self.Batch = nowdate.strftime("%Y%mobile%d%H%M%S")
         # 生成sig
         signature = self.AccountSid + self.AccountToken + self.Batch
         sig = md5(signature.encode()).hexdigest().upper()

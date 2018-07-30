@@ -108,6 +108,23 @@ $(function(){
         }
 
         // 发起登录请求
+        $.post('/user/login',{
+            'mobile':mobile,
+            'csrf_token':$('#csrf_token').val(),
+            'passwd':password
+        },function (data) {
+            var res = data.res;
+            if(res==2){
+                $('.login_form_con').hide();
+                $('.user_btns').hide();
+                $('.user_login').show();
+                $('.lgin_pic').attr('src','/static/news/images/'+data.avatar);
+                console.log(data.avatar);
+                $('#nick_name').html(data.nick_name)
+            }else {
+                alert('密码错误')
+            }
+        })
     })
 
 
@@ -142,7 +159,23 @@ $(function(){
         }
 
         // 发起注册请求
-
+        $.post('/user/register',{
+            'mobile':mobile,
+            'smscode':smscode,
+            'passwd':password,
+            'csrf_token': $('#csrf_token').val()
+        },function (data) {
+            var res = data.res;
+            if(res == 1){
+                alert('验证码错误')
+            }else if(res == 2){
+                //
+                $('.register_form_con').hide();
+                $('.login_form_con').show();
+            }else if (res=3){
+                alert('手机号已被注册')
+            }
+        })
     })
 })
 
@@ -169,33 +202,42 @@ function sendSMSCode() {
     }
     var imageCode = $("#imagecode").val();
     if (!imageCode) {
-        $("#image-code-err").html("请填写验证码！");
-        $("#image-code-err").show();
+        $("#register-image-code-err").html("请填写验证码！");
+        $("#register-image-code-err").show();
         $(".get_code").attr("onclick", "sendSMSCode();");
         return;
     }
 
     // TODO 发送短信验证码
+    var regex_mobile = /[1][35789]\d{9}/;
+    var regex_img_code = /[a-zA-Z0-9]{4}/;
+    if(regex_mobile.test(mobile)&&regex_img_code.test(imageCode)){
     $.get('/user/get_sms_code',{
-                'mobile':mobile,
-                'imgcode':imageCode},function (data) {
-        var res = data.res;
-        if(res == 1){
-            $("#image-code-err").html("发送成功！");
-        }else if(res == 2){
-            $("#image-code-err").html("验证码错误！");
-            generateImageCode();
-            $("#imagecode").val('');
-            $(".get_code").attr("onclick", "sendSMSCode();");
-        }else if(res == 3){
-            $("#image-code-err").html("验证码错误！");
-            generateImageCode();
-            $("#imagecode").val('');
-            $(".get_code").attr("onclick", "sendSMSCode();");
-        }
-        $("#image-code-err").show();
+            'mobile':mobile,
+            'imgcode':imageCode},function (data) {
+    var res = data.res;
+    if(res == 1){
+        // $("#register-image-code-err").html("发送成功！");
+        alert('发送成功！')
+    }else if(res == 2){
+        $("#register-image-code-err").html("验证码错误！");
+        generateImageCode();
+        $("#imagecode").val('');
+        $(".get_code").attr("onclick", "sendSMSCode();");
+    }else if(res == 3){
+        $("#register-image-code-err").html("验证码错误！");
+        generateImageCode();
+        $("#imagecode").val('');
+        $(".get_code").attr("onclick", "sendSMSCode();");
+    }
+    $("#image-code-err").show();
     })
-
+    }else {
+        $("#register-image-code-err").html("验证码错误！");
+        generateImageCode();
+        $("#imagecode").val('');
+        $(".get_code").attr("onclick", "sendSMSCode();");
+    }
 }
 
 // 调用该函数模拟点击左侧按钮
@@ -231,4 +273,13 @@ function generateUUID() {
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
     return uuid;
+}
+
+
+function logout() {
+    $.get('/user/logout',function (data) {
+        if(data.res == 1){
+            window.location.href = '/'
+        }
+    })
 }

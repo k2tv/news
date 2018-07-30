@@ -22,6 +22,17 @@ class Config(object):
     #os.path.dirname('')==>获取目录名，如/home/python/Desktop/sy8/sy8_flask/xjzx
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+    # 头像保存路径
+    AVATAR_PATH = os.path.join(BASE_DIR, 'static/news/images/')
+
+    # 腾讯云cos
+    QCLOUD_secret_id = 'AKIDdAaqxtPunX7azCQ3OoLl1Mkz42umiEln'      # 替换为用户的 secretId
+    QCLOUD_secret_key = 'PwSoIigVRYm6FJDynbOQi7ThU7Zry87F'      # 替换为用户的 secretKey
+    QCLOUD_region = 'ap-beijing'   # 替换为用户的 Region
+    QCLOUD_token = 'flask_news'
+    QCLOUD_Bucket = 'flask-news-1251357287'
+    QCLOUD_SRC_URL = 'http://flask-news-1251357287.cosbj.myqcloud.com/'
+
 class DevelopConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@localhost:3306/flask_news'

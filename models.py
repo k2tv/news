@@ -45,7 +45,7 @@ class NewsCategory(db.Model, BaseModel):
 class NewsInfo(db.Model, BaseModel):
     __tablename__ = 'news_info'
     id = db.Column(db.Integer, primary_key=True)
-    pic = db.Column(db.String(50))
+    pic = db.Column(db.String(50), default='news_pic.jpg')
     title = db.Column(db.String(30))
     summary = db.Column(db.String(200))
     context = db.Column(db.Text)
