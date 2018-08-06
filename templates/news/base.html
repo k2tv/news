@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>{{ title }} 新经资讯</title>
+	<title>{{ title }} - 嘀嗒资讯</title>
+    <meta name="Keywords" content="{{ title }} - 嘀嗒资讯" />
+    <meta name="Description" content="{{ title }} - 嘀嗒资讯" />
 	<link rel="stylesheet" type="text/css" href="../../static/news/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="../../static/news/css/main.css">
 	<script type="text/javascript" src="../../static/news/js/jquery-1.12.4.min.js"></script>
@@ -12,14 +14,14 @@
 <body>
 <div class="header_con">
     <div class="header">
-        <a href="/" class="logo fl"><img src="../../static/news/images/logo.png" alt="logo"></a>
+        <a href="/" class="logo fl"><img src="../../static/news/images/logo.png" alt="logo" width="120px"></a>
         {% block mean %}{% endblock %}
         <div class="user_btns fr" {% if g.user %}style="display: none" {% endif %}>
             <a href="javascript:;" class="login_btn">登录</a> / <a href="javascript:;" class="register_btn">注册</a>
         </div>
         <!-- 用户登录后显示下面，隐藏上面 -->
         <div class="user_login fr" {% if g.user %}style="display: block" {% endif %}>
-            <img src="../../static/news/images/{% if g.user %}{{ g.user.avatar }}{% endif %}" class="lgin_pic">
+            <img src="../../static/news/images/avatar/{% if g.user %}{{ g.user.avatar }}{% endif %}" class="lgin_pic">
             <a href="/user/" id="nick_name">{% if g.user %}{{ g.user.nick_name }}{% endif %}</a>
             <a href="javascript:logout();">退出</a>
         </div>

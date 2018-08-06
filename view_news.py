@@ -1,19 +1,214 @@
-from flask import Blueprint, render_template, session, redirect, g, request
-from models import UserInfo
+from flask import Blueprint, render_template, session, g, request, send_from_directory, current_app, jsonify, abort
+from models import db, UserInfo, NewsInfo, NewsCategory, NewsComment
 import re
+import functools
+import os
+import ifeng
+from threading import Thread
 
 news_blueprint = Blueprint('news', __name__)
 
 
+# 验证登陆
+def func_check_login(func):
+    @functools.wraps(func)
+    def func_in(*args, **kwargs):
+        if 'user_id' in session:
+            user_id = session.get('user_id')
+            g.user = UserInfo.query.get(user_id)
+        return func(*args, **kwargs)
+
+    return func_in
+
+
+# 首页
 @news_blueprint.route('/')
+@func_check_login
 def index():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        g.user = UserInfo.query.get(user_id)
+    pagination = get_news_list(1, 1)
+    news_list = pagination.items
+    click_list = get_click_list()
+    category_list = get_category()
     if checkMobile(request):
         return render_template('mobile/index.html')
-    return render_template('news/index.html')
+    return render_template('news/index.html', title='首页', news_list=news_list, click_list=click_list,
+                           category_list=category_list)
 
+
+# 根据类型和页数获取新闻列表
+def get_news_list(page, category_id):
+    return NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(category_id=category_id,status=2).paginate(page, 5, False)
+
+
+# 根据类型和页数获取新闻列表 视图
+@news_blueprint.route('/get_news_list_other_category')
+def get_news_list_other_category():
+    page = int(request.args.get('page', 1))
+    category_id = int(request.args.get('category_id', 1))
+    pagination = get_news_list(page, category_id)
+    news_list = pagination.items
+    list = []
+    for news in news_list:
+        list.append({
+            'id': news.id,
+            'pic': news.pic_url,
+            'title': news.title,
+            'summary': news.summary,
+            'user_id': news.user.id,
+            'avatar': news.user.avatar,
+            'nick_name': news.user.nick_name,
+            # python中的Datetime类型有个方法strftime()日期格式化，转成字符串
+            'create_time': news.create_time.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    total_page = pagination.pages
+    return jsonify(news_list=list, total_page=total_page)
+
+
+# 点击排行列表
+def get_click_list():
+    return NewsInfo.query.order_by(NewsInfo.click_count.desc()).filter_by(status=2)[:9]
+
+
+# 分类菜单信息列表
+def get_category():
+    return NewsCategory.query.all()
+
+
+# 新闻详情
+@news_blueprint.route('/detail/<int:news_id>.html')
+@func_check_login
+def detail(news_id):
+    news = NewsInfo.query.get(news_id)
+    if news:
+        click_list = get_click_list()
+        news.click_count += 1
+        db.session.commit()
+        public_news_count = NewsInfo.query.filter_by(status=2,user_id=news.user.id).count()
+        if checkMobile(request):
+            return render_template('mobile/detail.html', title='详情')
+        return render_template('news/detail.html', title=news.title, news=news, click_list=click_list,public_news_count=public_news_count)
+    else:
+        abort(404)
+
+
+# 作者详情
+@news_blueprint.route('/author/<int:user_id>.html')
+@func_check_login
+def author(user_id):
+    page = int(request.args.get('page', 1))
+    user_info = UserInfo.query.get(user_id)
+    if user_info:
+        news_info_pagination = NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(user_id=user_id).paginate(page, 10,
+                                                                                                               False)
+        news_info_items = news_info_pagination.items
+        news_info_total_page = news_info_pagination.pages
+        return render_template('news/other.html', user_info=user_info, news_info_items=news_info_items,
+                               current_page=page,
+                               total_page=news_info_total_page,title=user_info.nick_name)
+    else:
+        abort(404)
+
+
+# 小图标
+@news_blueprint.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(current_app.root_path, 'static/news/images'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
+
+
+# 收藏文章
+@news_blueprint.route('/db_user_news')
+def db_user_news():
+    if 'user_id' not in session:
+        abort(404)
+    news_id = request.args.get('news_id')
+    news_item = NewsInfo.query.get(news_id)
+    user = UserInfo.query.get(session['user_id'])
+    if news_item in user.news_collect:
+        user.news_collect.remove(news_item)
+    else:
+        user.news_collect.append(news_item)
+    db.session.commit()
+    return jsonify(res=1)
+
+# 添加评论
+@news_blueprint.route('/comment_add', methods=['POST'])
+def comment_add():
+    # 接收
+    msg = request.form.get('msg')
+    news_id = request.form.get('news_id')
+    # 如果是评论则不传递此数据，如果是回复，则传递此数据
+    comment_id = int(request.form.get('comment_id', 0))
+
+    # 验证
+    # 1.非空
+    if not all([msg, news_id]):
+        return jsonify(result=1)
+    # 2.是否登录
+    if 'user_id' not in session:
+        return jsonify(result=2)
+
+    # 处理：添加
+    comment = NewsComment()
+    comment.msg = msg
+    comment.news_id = int(news_id)
+    comment.user_id = session.get('user_id')
+
+    # 判断是否有评论编号，如果有则添加
+    # 添加评论时，不传递此参数
+    # 添加回复时，传递此参数
+    if comment_id > 0:
+        comment.comment_id = comment_id
+    db.session.add(comment)
+    db.session.commit()
+
+    # 响应
+    return jsonify(result=3)
+
+# 添加列表
+@news_blueprint.route('/comment_list/<int:news_id>')
+def comment_list(news_id):
+    # 处理：查询指定新闻的评论信息
+    list1 = NewsComment.query. \
+        filter_by(news_id=news_id, comment_id=None). \
+        order_by(NewsComment.like_count.desc(),NewsComment.id.desc())
+    # 将对象转字典
+    list2 = []
+    total_comment = 0
+    for comment in list1:
+        # 根据评论对象comment获取所有的回复对象
+        back_list = []
+        total_comment += 1
+        for back in comment.backs:
+            back_list.append({
+                'id': back.id,
+                'msg': back.msg,
+                'nick_name': back.user.nick_name,
+            })
+
+        list2.append({
+            'id': comment.id,
+            'msg': comment.msg,
+            'avatar': comment.user.avatar,
+            'nick_name': comment.user.nick_name,
+            'create_time': comment.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'like_count': comment.like_count,
+            'back_list': back_list
+        })
+
+    # 响应
+    return jsonify(list=list2,total_comment=total_comment)
+
+
+# 评论点赞
+@news_blueprint.route('/comment_like')
+def comment_like():
+    comment_id = request.args.get('like_id')
+    # 添加点赞计数
+    comment = NewsComment.query.filter_by(id=comment_id).first()
+    comment.like_count+=1
+    db.session.commit()
+    return jsonify(res=1)
 
 # 判断网站来自mobile还是pc
 def checkMobile(request):
@@ -42,3 +237,38 @@ def checkMobile(request):
     if _short_matches.search(user_agent) != None:
         return True
     return False
+
+# 关注
+@news_blueprint.route('/follow', methods=['POST'])
+def follow():
+    # 接收
+    author_id = request.form.get('author_id')
+
+    # 验证
+    # 1.作者编号非空
+    if not author_id:
+        return jsonify(result=1)
+    # 2.用户登录
+    if 'user_id' not in session:
+        return jsonify(result=2)
+    user_id = session.get('user_id')
+    # 查询对象
+    user = UserInfo.query.get(user_id)
+    author = UserInfo.query.get(author_id)
+
+    # 处理：判断是否关注
+    if author in user.authors:
+        # 取消
+        user.authors.remove(author)
+        # 粉丝数-1
+        author.follow_count -= 1
+    else:
+        # 关注
+        user.authors.append(author)
+        # 粉丝数+1
+        author.follow_count += 1
+    # 提交到数据库
+    db.session.commit()
+
+    # 响应
+    return jsonify(result=3)

@@ -1,11 +1,12 @@
 from flask import Blueprint, session, make_response, request, jsonify, render_template, redirect, g, current_app
 from utils.captcha.captcha import captcha
-from utils.ytx_sdk.ytx_send import sendTemplateSMS
-from models import UserInfo, db, NewsInfo
+from models import UserInfo, db, NewsInfo, NewsCategory
 import functools
 import time
 import random
-import qlcoud_cos
+from utils.qcloud_cos import qlcoud_cos
+from utils.qcloudsms_py import qcloud_sms
+import math
 
 user_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
@@ -40,6 +41,10 @@ def get_sms_code():
     if mobile and img_code:
         img_code_session = session.get('image_code')
         del session['image_code']
+
+        if UserInfo.query.filter_by(mobile=mobile).first():
+            return jsonify(res=4)
+
         if not img_code_session:
             return jsonify(res=3)
         if img_code.upper() != img_code_session.upper():
@@ -50,9 +55,9 @@ def get_sms_code():
         smscode = str(random.randint(100000, 999999))
         # 2.保存验证码，用于后续验证
         session['sms_code'] = smscode
-        # 3.发送短信
-        sendTemplateSMS(mobile, [smscode, '10'], 1)
-        # print(smscode)
+        # 3 腾讯接口
+        qcloud_sms.send_sms_code(mobile, smscode)
+
         # 响应
         return jsonify(res=1)
     return jsonify(res=3)
@@ -159,12 +164,12 @@ def user_pass_info():
 @fun_login_valid
 def user_news_release():
     if request.method == 'GET':
-        return render_template('news/user_news_release.html')
+        category_list = NewsCategory().query.all()
+        return render_template('news/user_news_release.html', list=category_list)
     title = request.form.get('title')
     category_id = request.form.get('category_id')
     summary = request.form.get('summary')
     context = request.form.get('content')
-
     pic = request.files.get('pic')
     news = NewsInfo()
     if pic:
@@ -191,14 +196,28 @@ def user_news_release():
 def user_follow():
     return render_template('news/user_follow.html')
 
-
-# 收藏
-@user_blueprint.route('/user_collection')
-def user_collection():
-    return render_template('news/user_collection.html')
-
-
 # 新闻列表
 @user_blueprint.route('/user_news_list')
+@fun_login_valid
 def user_news_list():
-    return render_template('news/user_news_list.html')
+    current_page = int(request.args.get('page', 1))
+    news_list = NewsInfo.query.order_by('id desc').filter_by(user_id=g.user.id).paginate(current_page, 10, False)
+    news_list_items = news_list.items
+    total_page = news_list.pages
+    return render_template('news/user_news_list.html', news_list=news_list_items, total_page=total_page,
+                           current_page=current_page)
+
+# 收藏列表
+@user_blueprint.route('/user_collection')
+@fun_login_valid
+def user_collection():
+    current_page = int(request.args.get('page', 1))
+    item_num = 8
+    news_list = g.user.news_collect.all()[::-1]
+    news_total = len(news_list)
+    news_list_items = news_list[(current_page-1)*item_num:(current_page-1)*item_num+item_num]
+    total_page = math.ceil(news_total/item_num)
+
+
+    return render_template('news/user_collection.html', news_list=news_list_items, total_page=total_page,
+                           current_page=current_page)

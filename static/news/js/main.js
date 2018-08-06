@@ -118,9 +118,12 @@ $(function(){
                 $('.login_form_con').hide();
                 $('.user_btns').hide();
                 $('.user_login').show();
-                $('.lgin_pic').attr('src','/static/news/images/'+data.avatar);
-                console.log(data.avatar);
-                $('#nick_name').html(data.nick_name)
+                $('.lgin_pic').attr('src','/static/news/images/avatar/'+data.avatar);
+                $('#nick_name').html(data.nick_name);
+                //详情页评论
+                $('.comment_form_logout').hide();
+                $('.comment_form').show();
+                $('#person_pic_img_detail').attr('src','/static/news/images/avatar/'+data.avatar);
             }else {
                 alert('密码错误')
             }
@@ -226,6 +229,11 @@ function sendSMSCode() {
         $(".get_code").attr("onclick", "sendSMSCode();");
     }else if(res == 3){
         $("#register-image-code-err").html("验证码错误！");
+        generateImageCode();
+        $("#imagecode").val('');
+        $(".get_code").attr("onclick", "sendSMSCode();");
+    }else if(res == 4){
+        $("#register-image-code-err").html("手机号已被注册！");
         generateImageCode();
         $("#imagecode").val('');
         $(".get_code").attr("onclick", "sendSMSCode();");

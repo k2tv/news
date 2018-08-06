@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask import current_app
+import re
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -45,9 +47,9 @@ class NewsCategory(db.Model, BaseModel):
 class NewsInfo(db.Model, BaseModel):
     __tablename__ = 'news_info'
     id = db.Column(db.Integer, primary_key=True)
-    pic = db.Column(db.String(50), default='news_pic.jpg')
-    title = db.Column(db.String(30))
-    summary = db.Column(db.String(200))
+    pic = db.Column(db.String(200), default='news_pic.jpg')
+    title = db.Column(db.String(300))
+    summary = db.Column(db.String(500))
     context = db.Column(db.Text)
     source = db.Column(db.String(20), default='')
     click_count = db.Column(db.Integer, default=0)
@@ -59,6 +61,15 @@ class NewsInfo(db.Model, BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey('user_info.id'))
     # 新闻与评论为1对多，在新闻中定义关系属性
     comments = db.relationship('NewsComment', lazy='dynamic', order_by='NewsComment.id.desc()')
+
+    @property
+    def pic_url(self):
+        pic = self.pic
+        is_in_qcloud = re.match(r'http.*', pic)
+        if not is_in_qcloud:
+            return current_app.config.get('QCLOUD_SRC_URL') + pic
+        else:
+            return pic
 
 
 class UserInfo(db.Model, BaseModel):

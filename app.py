@@ -1,5 +1,5 @@
-from flask import Flask
-from models import db
+from flask import Flask,render_template,session,redirect,g
+from models import db,UserInfo
 import logging
 from logging.handlers import RotatingFileHandler
 from flask_wtf.csrf import CSRFProtect
@@ -45,5 +45,15 @@ def create(config):
     app.register_blueprint(news_blueprint)
     app.register_blueprint(user_blueprint)
     app.register_blueprint(admin_blueprint)
+
+    # 处理404错误
+    @app.errorhandler(404)
+    def handle404(e):
+        # 验证登陆
+        if 'user_id' not in session:
+            return redirect('/')
+        user_id = session.get('user_id')
+        g.user = UserInfo.query.get(user_id)
+        return render_template('news/404.html',title='404')
 
     return app
