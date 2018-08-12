@@ -1,0 +1,23 @@
+{% extends 'news/base.html' %}
+
+{% block body %}
+<div class="conter_con">
+
+    {% block news_list %}{% endblock %}
+
+    <div class="rank_con fr">
+        {% block author %}{% endblock %}
+        <div class="rank_title">
+            <h3>点击排行</h3>
+        </div>
+        <ul class="rank_list">
+            {% for click_item in click_list %}
+                {% if loop.index==1 %}<li><span class="first">{{ loop.index }}</span><a href="/detail/{{ click_item.id }}.html">{{ click_item.title }}</a></li>
+                {% elif loop.index==2 %}<li><span class="second">{{ loop.index }}</span><a href="/detail/{{ click_item.id }}.html">{{ click_item.title }}</a></li>
+                {% elif loop.index==3 %}<li><span class="third">{{ loop.index }}</span><a href="/detail/{{ click_item.id }}.html">{{ click_item.title }}</a></li>
+                {% else %}<li><span class="">{{ loop.index }}</span><a href="/detail/{{ click_item.id }}.html">{{ click_item.title }}</a></li>{% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

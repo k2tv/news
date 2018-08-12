@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<urlset>
+    <url>
+        <loc>http://www.diidaa.cn/</loc>
+    </url>
+    {% for item in news %}
+    <url>
+        <loc>http://www.diidaa.cn/detail/{{ item.id }}.html</loc>
+        <lastmod>{{ item.create_time }}</lastmod>
+    </url>
+    {% endfor %}
+</urlset>

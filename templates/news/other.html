@@ -1,0 +1,83 @@
+{% extends 'news/base.html' %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="../../static/news/css/jquery.pagination.css">
+    <script type="text/javascript" src="/static/news/js/other.js"></script>
+    <script type="text/javascript" src="../../static/news/js/jquery.pagination.min.js"></script>
+{% endblock %}
+{% block body %}
+
+    <div class="conter_con">
+        <div class="user_menu_con fl">
+            <div class="user_center_pic">
+                <img src="../../static/news/images/avatar/{{ user_info.avatar }}" alt="{{ user_info.nick_name }}">
+            </div>
+            <div class="user_center_name">{{ user_info.nick_name }}</div>
+
+            <ul class="other_detail">
+                <li>性 别：{% if user_info.gender %}女{% else %}男{% endif %}</li>
+                <li>签 名：{% if user_info.signature %}{{ user_info.signature }}{% else %}这个人很懒，什么都没留下{% endif %}</li>
+            </ul>
+
+            <div class="focus_other">
+                {% if not g.user %}
+
+                {% elif user_info in g.user.authors %}
+                    <input type="hidden" id="author_id" value="{{ user_info.id }}">
+                    <a href="javascript:;" class="focus" style="display: none;">关注</a>
+                    <a href="javascript:;" class="focused">
+                        <span class="out">已关注</span>
+                        <span class="over">取消关注</span>
+                    </a>
+                {% else %}
+                    <input type="hidden" id="author_id" value="{{ user_info.id }}">
+                    <a href="javascript:;" class="focus">关注</a>
+                    <a href="javascript:;" class="focused" style="display: none;">
+                        <span class="out">已关注</span>
+                        <span class="over">取消关注</span>
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="user_con fr">
+            <div class="other_collect">
+                <h3>他的文章</h3>
+                <ul class="article_list">
+                    {% for news_info_item in news_info_items %}
+                        <li><a href="/detail/{{ news_info_item.id }}.html">{{ news_info_item.title }}</a><span>{{ news_info_item.create_time }}</span></li>
+                    {% endfor %}
+                </ul>
+
+{#                <div id="pagination" class="page"></div>#}
+{#                <script>#}
+{#                    $(function(){#}
+{#                        $("#pagination").pagination({#}
+{#                            currentPage: 2,#}
+{#                            totalPage: 3,#}
+{#                            callback: function(current) {#}
+{#                                alert('ok!');#}
+{#                            }#}
+{#                        });#}
+{#                    });#}
+{#                </script>#}
+            </div>
+        <div id="pagination" class="page"></div>
+        <script>
+            // 调用父页面的方法改变菜单指示
+            // window.parent.fnChangeMenu(2);
+            $(function(){
+                $("#pagination").pagination({
+                    currentPage: {{ current_page }},
+                    totalPage: {{ total_page }},
+                    callback: function(current) {
+                        window.location.href = '?page='+current;
+                    }
+                });
+            });
+        </script>
+
+        </div>
+    </div>
+{% endblock %}

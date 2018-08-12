@@ -1,4 +1,9 @@
 *.pyc
 .idea/
+<<<<<<< HEAD
 migrations/
 config.py
+=======
+config.py
+migretions/
+>>>>>>> xjnews
