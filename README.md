@@ -1,3 +1,4 @@
-# news
+# 嘀嗒资讯项目
 
-python flask 项目学习
+嘀嗒资讯开源
+地址：www.diidaa.cn
