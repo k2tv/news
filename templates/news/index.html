@@ -1,12 +1,10 @@
 {% extends 'news/base_news.html' %}
 {% block head %}
-    <script type="text/javascript" src="../../static/news/js/index.js?v=1"></script>
+    <script type="text/javascript" src="../../static/news/js/index.js?v=1.1"></script>
 {% endblock %}
 
 {% block mean %}
     <ul class="menu fl">
-{#            <li class="active" data-cid="0"><a href="javascript:;">最新</a></li>#}
-{#            <li data-cid="1"><a href="javascript:;">股市</a></li>#}
             {% for category in category_list %}
                 <li data-cid="{{ category.id }}" {% if loop.index == 1 %} class="active" {% endif %}><a href="javascript:;">{{ category.name }}</a></li>
             {% endfor %}
@@ -19,7 +17,7 @@
         <li>
             <a href="/detail/{{ news.id }}.html" class="news_pic fl"><img src="{{ news.pic_url }}" alt="{{ news.title }}"  onerror='this.src="/static/news/images/news_pic.jpg"'></a>
             <a href="/detail/{{ news.id }}.html" class="news_title fl">{{ news.title }}</a>
-            <a href="/detail/{{ news.id }}.html" class="news_detail fl">{{ news.summary }}</a>
+            <a href="/detail/{{ news.id }}.html" class="news_detail fl">{{ news.summary| trim }}</a>
             <div class="author_info fl">
                 <div class="author fl">
                     <img src="../../static/news/images/avatar/{{ news.user.avatar }}" alt="author">

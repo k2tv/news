@@ -21,7 +21,7 @@
                         <em class="review">审核中</em>
                     {% else %}
                         <em class="nopass">未通过</em>
-                        <b>未通过原因：因为写的太boring,因为写的太boring,因为写的太boring,因为写的太boring,</b>
+                        <b>{{ item.reason }}</b>
                     {% endif %}
                     <span>{{ item.create_time }}</span>
                 </li>

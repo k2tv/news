@@ -124,6 +124,12 @@ $(function(){
                 $('.comment_form_logout').hide();
                 $('.comment_form').show();
                 $('#person_pic_img_detail').attr('src','/static/news/images/avatar/'+data.avatar);
+                $('.comment_reply').show();
+                //手机登陆
+                $('#mobile_login').hide();
+                $('#mobile_nick_name').html(data.nick_name);
+                $('#mobile_nick_name').show();
+                $('#mobile_logout').show();
             }else {
                 alert('密码错误')
             }
@@ -290,4 +296,8 @@ function logout() {
             window.location.href = '/'
         }
     })
+}
+
+function login() {
+    $('.login_form_con').show();
 }

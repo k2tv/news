@@ -7,6 +7,7 @@ import random
 from utils.qcloud_cos import qlcoud_cos
 from utils.qcloudsms_py import qcloud_sms
 import math
+from view_news import checkMobile
 
 user_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
@@ -114,6 +115,8 @@ def index():
 @fun_login_valid
 def user_base_info():
     if request.method == 'GET':
+        if checkMobile(request):
+            return render_template('mobile/user_base_info.html')
         return render_template('news/user_base_info.html')
     # TODO 修改用户信息
     signature = request.form.get('signature')
@@ -193,8 +196,15 @@ def user_news_release():
 
 # 我的关注
 @user_blueprint.route('/user_follow')
+@fun_login_valid
 def user_follow():
-    return render_template('news/user_follow.html')
+    page = int(request.args.get('page', 1))
+    authors_list = g.user.authors.paginate(page, 4, False)
+    authors_item = authors_list.items
+    authors_list_total_page = authors_list.pages
+    return render_template('news/user_follow.html', authors_item=authors_item,
+                           authors_list_total_page=authors_list_total_page)
+
 
 # 新闻列表
 @user_blueprint.route('/user_news_list')
@@ -207,6 +217,7 @@ def user_news_list():
     return render_template('news/user_news_list.html', news_list=news_list_items, total_page=total_page,
                            current_page=current_page)
 
+
 # 收藏列表
 @user_blueprint.route('/user_collection')
 @fun_login_valid
@@ -215,9 +226,8 @@ def user_collection():
     item_num = 8
     news_list = g.user.news_collect.all()[::-1]
     news_total = len(news_list)
-    news_list_items = news_list[(current_page-1)*item_num:(current_page-1)*item_num+item_num]
-    total_page = math.ceil(news_total/item_num)
-
+    news_list_items = news_list[(current_page - 1) * item_num:(current_page - 1) * item_num + item_num]
+    total_page = math.ceil(news_total / item_num)
 
     return render_template('news/user_collection.html', news_list=news_list_items, total_page=total_page,
                            current_page=current_page)

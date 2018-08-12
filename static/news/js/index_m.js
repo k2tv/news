@@ -59,14 +59,10 @@ function updateNewsData(isOne, currentCid, cur_page) {
             // console.log(total_page)
             for (i = 0; i < list.length; i++) {
                 html_list += '<li>\n' +
-                    '            <a href="/detail/'+list[i].id+'.html" class="news_pic fl"><img src="' + list[i].pic + '" alt="'+ list[i].title + '"></a>\n' +
                     '            <a href="/detail/'+list[i].id+'.html" class="news_title fl">' + list[i].title + '</a>\n' +
                     '            <a href="/detail/'+list[i].id+'.html" class="news_detail fl">' + list[i].summary + '</a>\n' +
                     '            <div class="author_info fl">\n' +
-                    '                <div class="author fl">\n' +
-                    '                    <img src="../../static/news/images/avatar/' + list[i].avatar + '" width="20px" alt="author">\n' +
-                    '                    <a href="/author/'+list[i].user_id+'.html">' + list[i].nick_name + '</a>\n' +
-                    '                </div>\n' +
+                    '                <div class="source fl">来源：' + list[i].nick_name + '</div>\n' +
                     '                <div class="time fl">' + list[i].create_time + '</div>\n' +
                     '            </div>\n' +
                     '        </li>'

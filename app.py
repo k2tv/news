@@ -8,6 +8,7 @@ import redis
 from view_news import news_blueprint
 from view_user import user_blueprint
 from view_admin import admin_blueprint
+import re
 
 
 def create(config):
@@ -57,3 +58,11 @@ def create(config):
         return render_template('news/404.html',title='404')
 
     return app
+
+    # 过滤掉数据中div标签
+    # @app.template_filter('resub')
+    # def re_sub(content):
+    #     regex = r'<div.*?>'
+    #     return re.sub(regex,'',content)
+    #
+    # app.add_template_filter(re_sub, 'resub')

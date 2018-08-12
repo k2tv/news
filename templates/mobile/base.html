@@ -1,24 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 	<meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0, user-scalable=no, width=device-width" >
-	<title>{{ title }} 新经资讯</title>
+	<title>{{ title }} - 嘀嗒资讯</title>
+    <meta name="Keywords" content="{{ title }} - 嘀嗒资讯" />
+    <meta name="Description" content="{{ title }} - 嘀嗒资讯" />
 	<link rel="stylesheet" type="text/css" href="../../static/news/css/reset.css">
-	<link rel="stylesheet" type="text/css" href="../../static/news/css/main_m.css">
+	<link rel="stylesheet" type="text/css" href="../../static/news/css/main_m.css?v=1.4">
 	<script type="text/javascript" src="../../static/news/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../../static/news/js/main.js?v=2"></script>
+    <script type="text/javascript" src="../../static/news/js/bdtj.js"></script>
     {% block head %}{% endblock %}
 </head>
 <body>
 <div class="header_con">
     <div class="header">
-          <ul class="menu fl">
-            <li class="active" data-cid="0"><a href="javascript:;">最新</a></li>
-            <li data-cid="1"><a href="javascript:;">股市</a></li>
-            <li data-cid="2"><a href="javascript:;">债市</a></li>
-            <li data-cid="3"><a href="javascript:;">商品</a></li>
-            <li data-cid="4"><a href="javascript:;">外汇</a></li>
-        </ul>
+            {% block mean %}{% endblock %}
     </div>
 </div>
 
@@ -26,22 +24,22 @@
 
 <div class="footer">
     <div class="footer_links">
-        <a href="">关于我们</a>
+        <a href="#">关于我们</a>
         <span>|</span>
-        <a href="">联系我们</a>
+        <a href="/site.xml">网站地图</a>
         <span>|</span>
-        <a href="">招聘人才</a>
+        <a href="#">招聘人才</a>
         <span>|</span>
-        <a href="">友情链接</a>
+        <a href="https://2naive.cn" target="_blank">简单视频</a>
     </div>
     <p class="copyright">
-        CopyRight © 2018 新经资讯信息技术有限公司 All Rights Reserved<br/>
-        电话：010-****888 京ICP备*******8号
+        CopyRight © 2018 嘀嗒资讯 All Rights Reserved<br/>
+        DIIDAA.CN 京ICP备15007046号-3
     </p>
 </div>
 
 <!-- 登录表单 -->
-<form class="login_form_con">
+<form class="login_form_con" style="display: none;">
     <div class="login_form">
         <div class="login_title">
             <h3>登 录</h3>
@@ -65,7 +63,7 @@
 
 <input type="hidden" id="csrf_token" value="{{ csrf_token()}}">
 <!-- 注册表单 -->
-<form class="register_form_con">
+<form class="register_form_con" style="display: none;">
     <div class="register_form">
         <div class="register_title">
             <h3>注 册</h3>

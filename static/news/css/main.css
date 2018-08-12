@@ -140,6 +140,9 @@ body{
 	line-height:23px;
 	color:#666;
 }
+.news_detail img{
+      width: 100%;
+    }
 
 .author_info{
 	width:616px;

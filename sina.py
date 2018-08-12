@@ -20,34 +20,35 @@ import math
 
 class InfoSpider(object):
     def __init__(self):
-        url = Setting.START_URL
+        url = Setting.START_URL_sina
         self.headers = random.choice(Setting.HEADERS)
         self.request = urllib.request.Request(url=url, headers=self.headers)
         # redis去重redis_cli
 
-        self.redis_cli = redis.Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, db=Config.REDIS_DB)
-        self.request_url = self.redis_cli.smembers('ifeng')
-        self.request_url_list = [item.decode() for item in self.request_url]
+        # self.redis_cli = redis.Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, db=Config.REDIS_DB)
+        # self.request_url = self.redis_cli.smembers('netease')
+        # self.request_url_list = [item.decode() for item in self.request_url]
+        self.request_url_list = []
 
-        self.conn = connect(host='localhost', database='flask_news', port=3306, user='test', password='mysql',
-                            charset='utf8')
-        self.cs = self.conn.cursor()
+        # self.conn = connect(host='localhost', database='flask_news', port=3306, user='test', password='mysql',
+        #                     charset='utf8')
+        # self.cs = self.conn.cursor()
 
     def get_data(self):
         try:
-            data = urllib.request.urlopen(self.request, timeout=3).read().decode()  # 读取页面数据 并转换成str类型
+            data = urllib.request.urlopen(self.request, timeout=3).read().decode('gbk')  # 读取页面数据 并转换成str类型
+
             # 与匹配相关的正则表达式
             regex_table = r'<table.*?">[\s\S]*?</table>'
-            regex_table_in = r'<td.*?<h3>.*?href="(.*?)".*?>(.*?)</a>.*?</td>[\s\S]*?<td.*?>(.*?)</td>'
+            regex_table_in = r'<td.*?<span>.*?href="(.*?)".*?>(.*?)</a>.*?</td>[\s\S]*?<td.*?>(.*?)</td>'
             regex_summary = r'<.*?>|&.*?;'
             regex_img = r'<img.*?src="(.*?)".*?/>'
             res_table = re.findall(regex_table, data)
             index = 0
             for res_item in res_table:
                 index += 1;
-                # if index != 2:
-                #     continue
-
+                if index != 1:
+                    continue
                 res_table_in = re.findall(regex_table_in, res_item)
                 for index_item in range(len(res_table_in)):
                     res = res_table_in[index_item]
@@ -56,7 +57,7 @@ class InfoSpider(object):
                     if link not in self.request_url_list and link:
                         content = self.get_detail(link)
                         self.request_url_list.append(link)
-                        self.redis_cli.sadd('ifeng',link)
+                        # self.redis_cli.sadd('netease',link)
                         if content:
                             title = res[1]
                             content = content.strip()
@@ -73,21 +74,21 @@ class InfoSpider(object):
                                 summary = '图片内容：' + title
                             print('source:', index)
                             print('title:', title)
-                            # print('click_count:', res[2])
-                            # print('link:', link)
-                            # print('img:', img)
-                            # print('summary:', summary)
-                            # print('content:', content)
-                            t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            params = [title, res[2], img, summary, content, 2, math.ceil(index/2), '凤凰',2,t,t]
-                            self.cs.execute(
-                                'insert into news_info(title,click_count,pic,summary,context,user_id,category_id,source,status,create_time,update_time,comment_count) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,0)',
-                                params)
-                            self.conn.commit()
-                            print('____________________插入数据库完成____________________')
+                            print('click_count:', res[2])
+                            print('link:', link)
+                            print('img:', img)
+                            print('summary:', summary)
+                            print('content:', content)
+                            # t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            # params = [title, res[2], img, summary, content, 2, math.ceil(index/2), '凤凰咨询',2,t,t]
+                            # self.cs.execute(
+                            #     'insert into news_info(title,click_count,pic,summary,context,user_id,category_id,source,status,create_time,update_time,comment_count) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,0)',
+                            #     params)
+                            # self.conn.commit()
+                            print('____________________采集数据库完成____________________')
                         time.sleep(random.random())
-            self.cs.close()
-            self.conn.close()
+            # self.cs.close()
+            # self.conn.close()
         except Exception as e:
             print(e)
             pass
@@ -105,7 +106,7 @@ class InfoSpider(object):
         try:
             data_detail = urllib.request.urlopen(urllib.request.Request(url=link, headers=self.headers),
                                                  timeout=3).read().decode()  # 读取页面数据 并转换成str类型
-            regex_detail = r'<div.*?id="main_content".*?class="js_selection_area".*?>([\s\S]*)</div>'
+            regex_detail = r'<div.*?lass="post_text.*?id="endText.*?>([\s\S]*)</div>'
             res_detail = re.findall(regex_detail, data_detail)
             # return res_detail[0]
             # 去掉凤凰logo

@@ -3,8 +3,7 @@ from models import db, UserInfo, NewsInfo, NewsCategory, NewsComment
 import re
 import functools
 import os
-import ifeng
-from threading import Thread
+from datetime import datetime,timedelta
 
 news_blueprint = Blueprint('news', __name__)
 
@@ -16,6 +15,23 @@ def func_check_login(func):
         if 'user_id' in session:
             user_id = session.get('user_id')
             g.user = UserInfo.query.get(user_id)
+            # 修改用户的登录时间
+            now = datetime.now()
+            g.user.update_time = now
+            db.session.commit()
+            # 将本小时的登录数量+1
+            redis_cli = current_app.redis_cli
+            key = 'login' + now.strftime('%Y%m%d')
+            hour = now.hour  # '08:00'
+            if hour < 8:
+                redis_cli.hincrby(key, '08:00', 1)
+            elif hour >= 18:
+                redis_cli.hincrby(key, '19:00', 1)
+            else:  # 当前登录时间为12:30，则计为13:00的登录数量+1
+                redis_cli.hincrby(key, '%02d:00' % (hour + 1), 1)
+
+
+
         return func(*args, **kwargs)
 
     return func_in
@@ -30,14 +46,16 @@ def index():
     click_list = get_click_list()
     category_list = get_category()
     if checkMobile(request):
-        return render_template('mobile/index.html')
+        return render_template('mobile/index.html',title='首页', news_list=news_list, click_list=click_list,
+                           category_list=category_list)
     return render_template('news/index.html', title='首页', news_list=news_list, click_list=click_list,
                            category_list=category_list)
 
 
 # 根据类型和页数获取新闻列表
 def get_news_list(page, category_id):
-    return NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(category_id=category_id,status=2).paginate(page, 5, False)
+    return NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(category_id=category_id, status=2).paginate(page, 5,
+                                                                                                             False)
 
 
 # 根据类型和页数获取新闻列表 视图
@@ -64,9 +82,10 @@ def get_news_list_other_category():
     return jsonify(news_list=list, total_page=total_page)
 
 
-# 点击排行列表
+# 点击排行列表 24小时点击排行
 def get_click_list():
-    return NewsInfo.query.order_by(NewsInfo.click_count.desc()).filter_by(status=2)[:9]
+    one_days_ago = datetime.now() - timedelta(days=1)
+    return NewsInfo.query.order_by(NewsInfo.click_count.desc()).filter(NewsInfo.create_time >= one_days_ago).filter_by(status=2)[:9]
 
 
 # 分类菜单信息列表
@@ -83,10 +102,16 @@ def detail(news_id):
         click_list = get_click_list()
         news.click_count += 1
         db.session.commit()
-        public_news_count = NewsInfo.query.filter_by(status=2,user_id=news.user.id).count()
+        public_news_count = NewsInfo.query.filter_by(status=2, user_id=news.user.id).count()
+        # 去掉div标签
+        regex = r'<div.*?>|</div>'
+        content = re.sub(regex, '', news.context)
+
         if checkMobile(request):
-            return render_template('mobile/detail.html', title='详情')
-        return render_template('news/detail.html', title=news.title, news=news, click_list=click_list,public_news_count=public_news_count)
+            return render_template('mobile/detail.html', title=news.title, news=news,content = content,  click_list=click_list,
+                               public_news_count=public_news_count)
+        return render_template('news/detail.html', title=news.title, news=news,content = content, click_list=click_list,
+                               public_news_count=public_news_count)
     else:
         abort(404)
 
@@ -98,13 +123,13 @@ def author(user_id):
     page = int(request.args.get('page', 1))
     user_info = UserInfo.query.get(user_id)
     if user_info:
-        news_info_pagination = NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(user_id=user_id).paginate(page, 10,
+        news_info_pagination = NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(user_id=user_id,status=2).paginate(page, 10,
                                                                                                                False)
         news_info_items = news_info_pagination.items
         news_info_total_page = news_info_pagination.pages
         return render_template('news/other.html', user_info=user_info, news_info_items=news_info_items,
                                current_page=page,
-                               total_page=news_info_total_page,title=user_info.nick_name)
+                               total_page=news_info_total_page, title=user_info.nick_name)
     else:
         abort(404)
 
@@ -130,6 +155,7 @@ def db_user_news():
         user.news_collect.append(news_item)
     db.session.commit()
     return jsonify(res=1)
+
 
 # 添加评论
 @news_blueprint.route('/comment_add', methods=['POST'])
@@ -165,13 +191,14 @@ def comment_add():
     # 响应
     return jsonify(result=3)
 
+
 # 添加列表
 @news_blueprint.route('/comment_list/<int:news_id>')
 def comment_list(news_id):
     # 处理：查询指定新闻的评论信息
     list1 = NewsComment.query. \
         filter_by(news_id=news_id, comment_id=None). \
-        order_by(NewsComment.like_count.desc(),NewsComment.id.desc())
+        order_by(NewsComment.like_count.desc(), NewsComment.id.desc())
     # 将对象转字典
     list2 = []
     total_comment = 0
@@ -197,18 +224,25 @@ def comment_list(news_id):
         })
 
     # 响应
-    return jsonify(list=list2,total_comment=total_comment)
+    return jsonify(list=list2, total_comment=total_comment)
 
 
 # 评论点赞
-@news_blueprint.route('/comment_like')
+@news_blueprint.route('/comment_like', methods=['POST'])
 def comment_like():
-    comment_id = request.args.get('like_id')
+    comment_id = request.form.get('like_id')
+    type = request.form.get('type')
     # 添加点赞计数
     comment = NewsComment.query.filter_by(id=comment_id).first()
-    comment.like_count+=1
+
+    if type == '1':
+        comment.like_count += 1
+    else:
+        comment.like_count -= 1
+    res = comment.like_count
     db.session.commit()
-    return jsonify(res=1)
+    return jsonify(res=1,data=res)
+
 
 # 判断网站来自mobile还是pc
 def checkMobile(request):
@@ -237,6 +271,7 @@ def checkMobile(request):
     if _short_matches.search(user_agent) != None:
         return True
     return False
+
 
 # 关注
 @news_blueprint.route('/follow', methods=['POST'])
@@ -272,3 +307,9 @@ def follow():
 
     # 响应
     return jsonify(result=3)
+
+
+@news_blueprint.route('/site.xml')
+def sitemap():
+    news = NewsInfo.query.order_by(NewsInfo.id.desc()).filter_by(status=2).all()[:49900]
+    return render_template('news/site.xml', news=news), 200, {'Content-Type': 'text/xml'}

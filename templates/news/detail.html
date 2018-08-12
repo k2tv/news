@@ -13,14 +13,13 @@
                 <span class="time_souce fl">{{ news.create_time }} {{ news.user.nick_name }}</span>
                 <span class="comment fr">{{ news.comment_count }}</span>
             </div>
-
             <p class="summary">
                 摘要：{{ news.summary }}
             </p>
 
             <h4>{{ news.title }}</h4>
 
-          {{ news.context|safe }}
+          {{ content|safe }}
 
         <input type="hidden" id="news_id" value="{{ news.id }}">
         {% if not g.user %}
@@ -50,7 +49,6 @@
             <input type="submit" name="" value="评 论" class="comment_sub">
         </form>
 
-
         <div class="comment_count">
             0条评论
         </div>
@@ -67,8 +65,8 @@
                         <div class="reply_text">[[back.msg]]</div>
                     </div>
                     <div class="comment_time fl">[[comment.create_time]]</div>
-                    <a href="javascript:;" class="comment_up has_comment_up fr">[[comment.like_count]]</a>
-                    <a href="javascript:;" class="comment_reply fr">回复</a>
+                    <a href="javascript:;" class="comment_up fr" :data-like-id="comment.id">[[comment.like_count]]</a>
+                    <a href="javascript:;" class="comment_reply fr" {% if not g.user %}style="display: none" {% endif %}>回复</a>
                     <from class="reply_form fl">
                         <textarea class="reply_input"></textarea>
                         <input type="submit" :name="comment.id" value="回复" class="reply_sub fr">
@@ -76,8 +74,6 @@
                     </from>
                 </div>
             </div>
-
-
         </div>
 
 {% endblock %}

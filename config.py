@@ -26,21 +26,14 @@ class Config(object):
     AVATAR_PATH = os.path.join(BASE_DIR, 'static/news/images/avatar/')
 
     # 腾讯云cos配置
-    QCLOUD_secret_id = 'AKIDdAaqxtPunX7azCQ3OoLl1Mkz42umiEln'      # 替换为用户的 secretId
-    QCLOUD_secret_key = 'PwSoIigVRYm6FJDynbOQi7ThU7Zry87F'      # 替换为用户的 secretKey
-    QCLOUD_region = 'ap-beijing'   # 替换为用户的 Region
-    QCLOUD_token = 'flask_news'
-    QCLOUD_Bucket = 'flask-news-1251357287'
-    QCLOUD_SRC_URL = 'http://flask-news-1251357287.cosbj.myqcloud.com/'
 
     # 腾讯云短信配置
-    QCLOUD_sms_appid = '1400118386'
-    QCLOUD_sms_appkey = 'b232e0e65747a20d4416af52f5c9c5a5'
+
 
 
 class DevelopConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@localhost:3306/flask_news'
+
 
 
 class ProductConfig(Config):
@@ -49,7 +42,7 @@ class ProductConfig(Config):
 
 class Setting(object):
 
-    START_URL = 'http://news.ifeng.com/hotnews/'
+
 
     HEADERS = [{'User-Agent': 'Opera/9.80(WindowsNT6.1;U;en)Presto/2.8.131Version/11.11'},
                {'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'},
