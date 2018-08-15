@@ -42,7 +42,7 @@ class ProductConfig(Config):
 
 class Setting(object):
 
-
+    # 爬虫相关的一些参数
 
     HEADERS = [{'User-Agent': 'Opera/9.80(WindowsNT6.1;U;en)Presto/2.8.131Version/11.11'},
                {'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'},
