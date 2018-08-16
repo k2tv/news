@@ -30,7 +30,7 @@ class Config(object):
 
 class DevelopConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://test:mysql@localhost:3306/flask_news'
+
 
 
 class ProductConfig(Config):
