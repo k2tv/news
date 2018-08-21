@@ -36,7 +36,7 @@ class InfoSpider(object):
     def get_data(self):
         try:
             data = urllib.request.urlopen(self.request, timeout=3).read().decode()  # 读取页面数据 并转换成str类型
-            # 与匹配相关的正则表达式
+            # 与匹配相关的正则表达式  
             regex_table = r'<table.*?">[\s\S]*?</table>'
             regex_table_in = r'<td.*?<h3>.*?href="(.*?)".*?>(.*?)</a>.*?</td>[\s\S]*?<td.*?>(.*?)</td>'
             regex_summary = r'<.*?>|&.*?;'
