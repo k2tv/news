@@ -176,7 +176,7 @@ if __name__ == '__main__':
             continue
         print(t)
         run_ifeng_spider()
-        time.sleep(60 * 30)  # 每次间隔30分钟
+        time.sleep(60 * 30)  # 每次间隔30分钟  
 
     # info_spider = InfoSpider()
     # info_spider.get_detail('http://news.ifeng.com/a/20180604/58565046_0.shtml')
